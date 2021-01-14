@@ -91,6 +91,10 @@ defmodule Rabbit.ConsumerTest do
       {:ok, %{state | queue: queue}}
     end
 
+    def on_ready(%{setup_opts: setup_opts}) do
+      send(setup_opts[:test_pid], :advanced_setup_on_ready_callback)
+    end
+
     @impl Rabbit.Consumer
     def handle_message(_msg) do
     end
@@ -201,6 +205,15 @@ defmodule Rabbit.ConsumerTest do
     AMQP.Queue.declare(channel, queue, auto_delete: true)
 
     assert {:ok, _, _} = start_consumer(MinimalTestConsumer, meta, queue: queue)
+  end
+
+  test "consumer module calls on_ready when started", meta do
+    assert {:ok, _, _} =
+             start_consumer(AdvancedSetupTestConsumer, meta,
+               setup_opts: [test_pid: self(), routing_key: "routing.route"]
+             )
+
+    assert_receive :advanced_setup_on_ready_callback
   end
 
   test "stops the server if the queue is not specified", meta do

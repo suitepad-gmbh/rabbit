@@ -155,6 +155,13 @@ defmodule Rabbit.Consumer do
   @callback handle_setup(state :: map) :: :ok | {:ok, new_state :: map()} | :error
 
   @doc """
+  A callback executed when the consumer has started and is registered to consume messages.
+
+  May optionally receive the current state but return values are ignored.
+  """
+  @callback on_ready(state :: map()) :: any()
+
+  @doc """
   A callback executed to handle message consumption.
 
   The callback is provided a `Rabbit.Message` struct. You may find more information

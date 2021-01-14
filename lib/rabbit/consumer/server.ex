@@ -90,10 +90,16 @@ defmodule Rabbit.Consumer.Server do
 
   def handle_continue(:consume, state) do
     case consume(state) do
-      {:ok, state} -> {:noreply, state}
+      {:ok, state} -> {:noreply, state, {:continue, :ready}}
       {:error, :no_queue_given} -> {:stop, :no_queue_given, state}
       {:error, state} -> {:noreply, state, {:continue, :restart_delay}}
     end
+  end
+
+  def handle_continue(:ready, state) do
+    handle_ready(state)
+
+    {:noreply, state}
   end
 
   def handle_continue(:restart_delay, state) do
@@ -225,6 +231,14 @@ defmodule Rabbit.Consumer.Server do
       end
     else
       {:ok, state}
+    end
+  end
+
+  def handle_ready(state) do
+    cond do
+      function_exported?(state.module, :on_ready, 0) -> state.module.on_ready()
+      function_exported?(state.module, :on_ready, 1) -> state.module.on_ready(state)
+      true -> :ok
     end
   end
 
