@@ -19,7 +19,7 @@ defmodule Rabbit.Connection.Server do
     frame_max: [type: :integer, required: false],
     heartbeat: [type: :integer, required: false],
     connection_timeout: [type: :integer, required: false],
-    ssl_options: [type: [:keyword, :atom], required: false],
+    ssl_options: [type: :any, required: false],
     client_properties: [type: :list, required: false],
     socket_options: [type: :list, required: false],
     retry_backoff: [type: :integer, default: 1_000, required: true],
